@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>588</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,15 +16,33 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <widget class="QTextEdit" name="textEdit"/>
       </item>
       <item>
        <widget class="QTextEdit" name="textEdit_2"/>
       </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
-       <widget class="QTextBrowser" name="textBrowser"/>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Ajouter une page</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="comboBox"/>
       </item>
      </layout>
     </item>
@@ -54,6 +72,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionColor"/>
+    <addaction name="actionBackground_color"/>
     <addaction name="actionFont"/>
     <addaction name="separator"/>
     <addaction name="actionCopy"/>
@@ -85,6 +104,7 @@
     <addaction name="actionRendu"/>
     <addaction name="actionRendu_HTML_preview"/>
     <addaction name="actionRender_all"/>
+    <addaction name="actionExporter"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -92,7 +112,6 @@
    <addaction name="menuImage"/>
    <addaction name="menuHTML"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
@@ -121,6 +140,7 @@
    <addaction name="separator"/>
    <addaction name="actionAbout"/>
   </widget>
+  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionNew">
    <property name="icon">
     <iconset resource="Ressources.qrc">
@@ -274,6 +294,16 @@
   <action name="actionRender_all">
    <property name="text">
     <string>Render all</string>
+   </property>
+  </action>
+  <action name="actionExporter">
+   <property name="text">
+    <string>Exporter</string>
+   </property>
+  </action>
+  <action name="actionBackground_color">
+   <property name="text">
+    <string>Background color</string>
    </property>
   </action>
  </widget>

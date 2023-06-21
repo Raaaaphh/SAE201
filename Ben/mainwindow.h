@@ -14,6 +14,7 @@
 #include <QTextStream>
 #include <QLabel>
 #include <QInputDialog>
+#include <QDebug>
 
 
 
@@ -47,19 +48,19 @@ private slots:
     void on_actionColor_triggered();
     void on_actionImporter_triggered();
     void on_actionRendu_triggered();
-    /*void resizeImage();
-    void moveImage();
-    void deleteImage();*/
-
-
-
+    void resizeImage();
+    //void moveImage();
+    void deleteImage();
     void on_actionRendu_HTML_preview_triggered();
+    void on_actionExporter_triggered();
+    void textChanged();
 
 private:
     Ui::MainWindow *ui;
     QString currentFile;
     QString filePath;
     QString htmlContent;
-    //QString selectedImageUrl;
+    QString selectedImageUrl;
+    void createHtmlFile(const QString& filePath, const QString& htmlContent);
 };
 #endif // MAINWINDOW_H

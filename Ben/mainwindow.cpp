@@ -12,7 +12,9 @@ MainWindow::MainWindow(QWidget *parent)
             &MainWindow::cut);
     connect(ui->actionPaste, &QAction::triggered, this,
             &MainWindow::paste);
-
+    connect(ui->actionRedimensionner, &QAction::triggered, this, &MainWindow::resizeImage);
+    connect(ui->actionSupprimer, &QAction::triggered, this, &MainWindow::deleteImage);
+    connect(ui->textEdit, &QTextEdit::textChanged, this, &MainWindow::textChanged);
 
 
 
@@ -95,22 +97,22 @@ void MainWindow::on_actionFont_triggered()
     bool fontSelected;
     QFont font = QFontDialog::getFont(&fontSelected, this);
     if (fontSelected)
-        ui->textEdit_2->setCurrentFont(font);
+        ui->textEdit->setCurrentFont(font);
 }
 
 void MainWindow::setItalic(bool italic)
 {
-    ui->textEdit_2->setFontItalic(italic);
+    ui->textEdit->setFontItalic(italic);
 }
 
 void MainWindow::setUnderline(bool underline)
 {
-    ui->textEdit_2->setFontUnderline(underline);
+    ui->textEdit->setFontUnderline(underline);
 }
 
 void MainWindow::setBold(bool bold)
 {
-    ui->textEdit_2->setFontWeight(bold ? QFont::Bold: QFont::Normal);
+    ui->textEdit->setFontWeight(bold ? QFont::Bold: QFont::Normal);
 }
 
 void MainWindow::about(){
@@ -123,20 +125,20 @@ void MainWindow::on_actionAbout_triggered()
 }
 
 void MainWindow::copy(){
-    ui->textEdit_2->copy();
+    ui->textEdit->copy();
 }
 
 void MainWindow::paste(){
-    ui->textEdit_2->paste();
+    ui->textEdit->paste();
 }
     QString selectedImageUrl;
 void MainWindow::cut(){
-    ui->textEdit_2->cut();
+    ui->textEdit->cut();
 }
 
 void MainWindow::on_actionColor_triggered()
 {
-    ui->textEdit_2->setTextColor(QColorDialog::getColor(Qt::white, this, "Couleur",QColorDialog::ColorDialogOptions()));
+    ui->textEdit->setTextColor(QColorDialog::getColor(Qt::white, this, "Couleur",QColorDialog::ColorDialogOptions()));
 }
 
 
@@ -144,7 +146,91 @@ void MainWindow::on_actionImporter_triggered()
 {
     QString imagePath = QFileDialog::getOpenFileName(this, "Sélectionner une image", "", "Images (*.png *.jpg *.jpeg)");
     QString htmlImageTag = QString("<img src=\"%1\">").arg(imagePath);
-    ui->textEdit_2->insertHtml(htmlImageTag);
+    ui->textEdit->insertHtml(htmlImageTag);
+}
+
+
+
+
+void MainWindow::resizeImage()
+{
+    QTextCursor cursor = ui->textEdit->textCursor();
+    QTextCharFormat charFormat = cursor.charFormat();
+    if (charFormat.isImageFormat())
+    {
+        QTextImageFormat imgFormat = charFormat.toImageFormat();
+        QString imgSrc = imgFormat.name();
+        if (!imgSrc.isEmpty())
+        {
+            bool ok;
+            QString newSize = QInputDialog::getText(this, "Redimensioner l'image", "Entrer une taille (weight x height)", QLineEdit::Normal, "", &ok);
+            if (ok && !newSize.isEmpty())
+            {
+                QStringList sizeParts = newSize.split("x");
+                if (sizeParts.size() == 2)
+                {
+                    int width = sizeParts[0].toInt();
+                    int height = sizeParts[1].toInt();
+
+                    imgFormat.setWidth(width);
+                    imgFormat.setHeight(height);
+
+                    cursor.mergeCharFormat(imgFormat);
+                    ui->textEdit->setTextCursor(cursor);
+                }
+            }
+        }
+    }
+    else
+    {
+        QMessageBox::information(this, "No Image Selected", "Please select an image to resize.");
+    }
+}
+
+
+void MainWindow::deleteImage()
+{
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.select(QTextCursor::Document);
+    QString selectedText = cursor.selectedText();
+
+    if (selectedText.contains("<img"))
+    {
+        cursor.removeSelectedText();
+    }
+    else
+    {
+        QMessageBox::information(this, "No Image Selected", "Please select an image to delete.");
+    }
+}
+
+void MainWindow::on_actionExporter_triggered()
+{
+    QString filePath = QFileDialog::getSaveFileName(this, "Enregistrer le fichier", "", "Fichiers HTML (*.html)");
+    if (filePath.isEmpty())
+        return;
+
+    QString htmlContent = ui->textEdit->toHtml();
+
+    createHtmlFile(filePath, htmlContent);
+
+    QMessageBox::information(this, "Exportation réussie", "Le fichier a été exporté avec succès.");
+}
+
+
+void MainWindow::createHtmlFile(const QString& filePath, const QString& htmlContent)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QMessageBox::critical(this, "Erreur d'exportation", "Impossible de créer le fichier HTML : " + file.errorString());
+            return;
+    }
+
+    QTextStream out(&file);
+    out << htmlContent;
+
+    file.close();
 }
 
 
@@ -157,6 +243,12 @@ void MainWindow::on_actionRendu_triggered()
 void MainWindow::on_actionRendu_HTML_preview_triggered()
 {
     QString htmlContent = ui->textEdit_2->toPlainText();
-    ui->textBrowser->setHtml(htmlContent);
+    ui->textEdit->setHtml(htmlContent);
 }
 
+
+void MainWindow::textChanged()
+{
+    QString htmlContent = ui->textEdit->toHtml();
+    ui->textEdit_2->setPlainText(htmlContent);
+}
