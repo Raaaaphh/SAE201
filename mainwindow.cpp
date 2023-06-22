@@ -3,7 +3,8 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::MainWindow),
+      currentPercentage(100)
 {
     ui->setupUi(this);
     connect(ui->actionCopy, &QAction::triggered, this,
@@ -12,16 +13,13 @@ MainWindow::MainWindow(QWidget *parent)
             &MainWindow::cut);
     connect(ui->actionPaste, &QAction::triggered, this,
             &MainWindow::paste);
-    connect(ui->actionRedimensioner, &QAction::triggered, this, &MainWindow::resizeImage);
-    connect(ui->actionD_placer, &QAction::triggered, this, &MainWindow::moveImage);
-    connect(ui->actionSuprimmer, &QAction::triggered, this, &MainWindow::deleteImage);
-
-
-
-
-
+    connect(ui->actionRedimensionner, &QAction::triggered, this, &MainWindow::resizeImage);
+    connect(ui->actionSupprimer, &QAction::triggered, this, &MainWindow::deleteImage);
+    connect(ui->textEdit, &QTextEdit::textChanged, this, &MainWindow::textChanged);
+    connect(ui->actionRedimensionnerBar, &QAction::triggered, this, &MainWindow::openResizeDialog);
 
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -32,7 +30,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNew_triggered()
 {
     currentFile.clear();
-    ui->textEdit->setText(QString());
+    ui->textEdit_2->setText(QString());
 
 }
 
@@ -52,7 +50,7 @@ void MainWindow::on_actionOpen_triggered()
     setWindowTitle(fileName);
     QTextStream in(&file);
     QString text = in.readAll();
-    ui->textEdit->setText(text);
+    ui->textEdit_2->setText(text);
     file.close();
 }
 
@@ -66,7 +64,7 @@ void MainWindow::on_actionSave_triggered()
         fileToSave =currentFile;
     }
     QFile file(fileToSave+".txt");
-    QString fileContent = ui->textEdit->toPlainText();
+    QString fileContent = ui->textEdit_2->toPlainText();
     if(file.open(QFile::WriteOnly | QFile::Text)){
         QTextStream in(&file);
         in<<fileContent;
@@ -79,7 +77,7 @@ void MainWindow::on_actionSave_as_triggered()
 {
     QString fileToSave = QFileDialog::getSaveFileName(this, "Choose a file name");
     QFile file(fileToSave+".txt");
-    QString fileContent = ui->textEdit->toPlainText();
+    QString fileContent = ui->textEdit_2->toPlainText();
     if(file.open(QFile::WriteOnly | QFile::Text)){
         QTextStream in(&file);
         in<<fileContent;
@@ -152,11 +150,7 @@ void MainWindow::on_actionImporter_triggered()
 }
 
 
-void MainWindow::on_actionRendu_triggered()
-{
-    QString htmlContent = ui->textEdit->toHtml();
-    ui->textBrowser->setPlainText(htmlContent);
-}
+
 
 void MainWindow::resizeImage()
 {
@@ -194,28 +188,6 @@ void MainWindow::resizeImage()
 }
 
 
-
-void MainWindow::moveImage()
-{
-    QTextCursor cursor = ui->textEdit->textCursor();
-    cursor.select(QTextCursor::Document);
-    QString selectedText = cursor.selectedText();
-
-    if (selectedText.contains("<img"))
-    {
-        // Code pour déplacer l'image
-        // Ici, tu peux mettre en œuvre la logique permettant de détecter le déplacement de l'image
-        // et de mettre à jour les coordonnées de l'image dans la balise <img>
-        // Une approche possible est d'ajouter des gestionnaires d'événements de souris
-        // pour suivre le déplacement de l'image et mettre à jour les coordonnées en conséquence.
-        // Par exemple, tu peux utiliser des signaux tels que mousePressEvent, mouseMoveEvent et mouseReleaseEvent
-    }
-    else
-    {
-        QMessageBox::information(this, "No Image Selected", "Please select an image to move.");
-    }
-}
-
 void MainWindow::deleteImage()
 {
     QTextCursor cursor = ui->textEdit->textCursor();
@@ -245,13 +217,14 @@ void MainWindow::on_actionExporter_triggered()
     QMessageBox::information(this, "Exportation réussie", "Le fichier a été exporté avec succès.");
 }
 
+
 void MainWindow::createHtmlFile(const QString& filePath, const QString& htmlContent)
 {
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QMessageBox::critical(this, "Erreur d'exportation", "Impossible de créer le fichier HTML : " + file.errorString());
-        return;
+            return;
     }
 
     QTextStream out(&file);
@@ -261,5 +234,126 @@ void MainWindow::createHtmlFile(const QString& filePath, const QString& htmlCont
 }
 
 
+void MainWindow::on_actionRendu_triggered()
+{
+    QString htmlContent = ui->textEdit->toHtml();
+    ui->textEdit_2->setPlainText(htmlContent);
+}
 
+void MainWindow::on_actionRendu_HTML_preview_triggered()
+{
+    QString htmlContent = ui->textEdit_2->toPlainText();
+    ui->textEdit->setHtml(htmlContent);
+}
+
+
+void MainWindow::textChanged()
+{
+    QString htmlContent = ui->textEdit->toHtml();
+    ui->textEdit_2->setPlainText(htmlContent);
+}
+
+QSize MainWindow::getImageSize(const QString& imagePath)
+{
+    QImage image(imagePath);
+    return image.size();
+}
+
+
+void MainWindow::openResizeDialog()
+{
+    QTextCursor cursor = ui->textEdit->textCursor();
+    QTextCharFormat charFormat = cursor.charFormat();
+    charFormat.setObjectIndex(-1); // Ajoutez cette ligne pour supprimer l'index de l'objet
+
+    if (charFormat.isImageFormat())
+    {
+        QTextImageFormat imgFormat = charFormat.toImageFormat();
+        QString imgSrc = imgFormat.name();
+        if (!imgSrc.isEmpty())
+        {
+            // Créez une boîte de dialogue pour redimensionner l'image
+            QDialog* dialog = new QDialog(this);
+            dialog->setWindowTitle("Redimensionner l'image");
+
+            // Créez un slider pour ajuster la taille
+            QSlider* slider = new QSlider(Qt::Horizontal);
+            slider->setRange(1, 200);
+            slider->setSliderPosition(currentPercentage);
+
+
+
+            // Créez une étiquette pour afficher la valeur actuelle du slider
+            QLabel* label = new QLabel(QString("%1%").arg(currentPercentage)); // Mettre à jour le label
+
+            // Connectez le signal `valueChanged` du slider à la mise à jour de l'étiquette
+            connect(slider, &QSlider::valueChanged, [label](int value) {
+                label->setText(QString("%1%").arg(value));
+            });
+
+
+            // Créez un layout vertical pour organiser les widgets dans la boîte de dialogue
+            QVBoxLayout* layout = new QVBoxLayout;
+            layout->addWidget(slider);
+            layout->addWidget(label);
+
+            // Ajoutez des boutons OK et Annuler à la boîte de dialogue
+            QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+            layout->addWidget(buttonBox);
+
+
+
+
+            // Connectez le signal `accepted` du bouton OK à la fonction de redimensionnement de l'image
+            connect(buttonBox, &QDialogButtonBox::accepted, [dialog, slider, imgFormat, cursor, this]() {
+                QTextCursor cursor = ui->textEdit->textCursor();
+                QTextCharFormat charFormat = cursor.charFormat();
+                charFormat.setObjectIndex(-1); // Ajoutez cette ligne pour supprimer l'index de l'objet
+                if (charFormat.isImageFormat())
+                {
+                    QTextImageFormat imgFormat = charFormat.toImageFormat();
+                    QString imgSrc = imgFormat.name();
+
+
+                QSize imageSize = getImageSize(imgSrc);
+                int value = slider->value();
+                int width = imageSize.width();
+                int height = imageSize.height();
+                int newWidth = width * value / 100;
+                int newHeight = height * value / 100;
+
+                const_cast<QTextImageFormat&>(imgFormat).setWidth(newWidth); // Utilisez const_cast pour supprimer la constance
+                const_cast<QTextImageFormat&>(imgFormat).setHeight(newHeight); // Utilisez const_cast pour supprimer la constance
+
+                const_cast<QTextCursor&>(cursor).mergeCharFormat(imgFormat);
+
+                ui->textEdit->setTextCursor(cursor);
+
+                currentPercentage = slider->value();
+
+                dialog->accept();
+
+                }
+            });
+
+            // Connectez le signal `rejected` du bouton Annuler pour fermer la boîte de dialogue
+            connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+
+            // Définissez le layout sur la boîte de dialogue
+            dialog->setLayout(layout);
+
+            // Affichez la boîte de dialogue modale
+            dialog->exec();
+        }
+    }
+    else
+    {
+        QMessageBox::information(this, "Aucune image sélectionnée", "Veuillez sélectionner une image à redimensionner.");
+    }
+}
+
+void MainWindow::on_actionRedimensionnerBar_triggered()
+{
+
+}
 

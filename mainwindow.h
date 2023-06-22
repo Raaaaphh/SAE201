@@ -15,6 +15,17 @@
 #include <QLabel>
 #include <QInputDialog>
 #include <QDebug>
+#include <QPainter>
+#include <QMouseEvent>
+#include <QHBoxLayout>
+#include <QWidget>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QSlider>
+#include <QLabel>
+#include <QDialogButtonBox>
+
+
 
 
 QT_BEGIN_NAMESPACE
@@ -48,11 +59,13 @@ private slots:
     void on_actionImporter_triggered();
     void on_actionRendu_triggered();
     void resizeImage();
-    void moveImage();
+    //void moveImage();
     void deleteImage();
-
-
+    void on_actionRendu_HTML_preview_triggered();
     void on_actionExporter_triggered();
+    void textChanged();
+    void openResizeDialog();
+    void on_actionRedimensionnerBar_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -61,6 +74,8 @@ private:
     QString htmlContent;
     QString selectedImageUrl;
     void createHtmlFile(const QString& filePath, const QString& htmlContent);
+    QSize getImageSize(const QString& imagePath);
+    int currentPercentage;
 
 
 };
