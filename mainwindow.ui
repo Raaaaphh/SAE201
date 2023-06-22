@@ -81,6 +81,10 @@
     <addaction name="separator"/>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionCentrer"/>
+    <addaction name="actionEcrire_a_gauche"/>
+    <addaction name="actionEcrire_a_droite"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -310,6 +314,21 @@
   <action name="actionRedimensionnerBar">
    <property name="text">
     <string>RedimensionnerBar</string>
+   </property>
+  </action>
+  <action name="actionCentrer">
+   <property name="text">
+    <string>Centrer</string>
+   </property>
+  </action>
+  <action name="actionEcrire_a_droite">
+   <property name="text">
+    <string>Ecrire a droite</string>
+   </property>
+  </action>
+  <action name="actionEcrire_a_gauche">
+   <property name="text">
+    <string>Ecrire a gauche</string>
    </property>
   </action>
  </widget>

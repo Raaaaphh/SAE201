@@ -67,6 +67,12 @@ private slots:
     void openResizeDialog();
     void on_actionRedimensionnerBar_triggered();
 
+    void on_actionCentrer_triggered();
+
+    void on_actionEcrire_a_droite_triggered();
+
+    void on_actionEcrire_a_gauche_triggered();
+
 private:
     Ui::MainWindow *ui;
     QString currentFile;

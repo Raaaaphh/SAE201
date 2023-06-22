@@ -357,3 +357,63 @@ void MainWindow::on_actionRedimensionnerBar_triggered()
 
 }
 
+
+void MainWindow::on_actionCentrer_triggered()
+{
+    QTextCursor cursor = ui->textEdit->textCursor();
+    if (cursor.hasSelection()) {
+        QTextBlockFormat blockFormat;
+        blockFormat.setAlignment(Qt::AlignHCenter); // Aligner le texte au centre
+        cursor.mergeBlockFormat(blockFormat);
+        ui->textEdit->setTextCursor(cursor);
+    } else {
+        QTextCursor newCursor = ui->textEdit->textCursor();
+        newCursor.movePosition(QTextCursor::StartOfLine); // Déplacer le curseur au début de la ligne
+        QTextBlockFormat blockFormat;
+        blockFormat.setAlignment(Qt::AlignHCenter); // Aligner le texte au centre
+        newCursor.setBlockFormat(blockFormat);
+        ui->textEdit->setTextCursor(newCursor);
+    }
+}
+
+
+void MainWindow::on_actionEcrire_a_droite_triggered()
+{
+    QTextCursor cursor = ui->textEdit->textCursor();
+    if (cursor.hasSelection()) {
+        QTextBlockFormat blockFormat;
+        blockFormat.setAlignment(Qt::AlignRight); // Aligner le texte à droite
+        cursor.mergeBlockFormat(blockFormat);
+        ui->textEdit->setTextCursor(cursor);
+    } else {
+        QTextCursor newCursor = ui->textEdit->textCursor();
+        newCursor.movePosition(QTextCursor::EndOfLine); // Déplacer le curseur à la fin de la ligne
+        QTextBlockFormat blockFormat;
+        blockFormat.setAlignment(Qt::AlignRight); // Aligner le texte à droite
+        newCursor.setBlockFormat(blockFormat);
+        ui->textEdit->setTextCursor(newCursor);
+    }
+}
+
+
+void MainWindow::on_actionEcrire_a_gauche_triggered()
+{
+    QTextCursor cursor = ui->textEdit->textCursor();
+        if (cursor.hasSelection()) {
+            QTextBlockFormat blockFormat;
+            blockFormat.setAlignment(Qt::AlignLeft); // Aligner le texte à gauche
+            cursor.mergeBlockFormat(blockFormat);
+            ui->textEdit->setTextCursor(cursor);
+        } else {
+            QTextCursor newCursor = ui->textEdit->textCursor();
+            newCursor.movePosition(QTextCursor::StartOfLine); // Déplacer le curseur au début de la ligne
+            QTextBlockFormat blockFormat;
+            blockFormat.setAlignment(Qt::AlignLeft); // Aligner le texte à gauche
+            newCursor.setBlockFormat(blockFormat);
+            ui->textEdit->setTextCursor(newCursor);
+        }
+}
+
+
+
+
